@@ -1,0 +1,23 @@
+module.exports = {
+  apps: [
+    {
+      name: 'club-backend',
+      cwd: './backend',
+      script: 'dist/index.js',
+      env: {
+        PORT: 3000,
+        NODE_ENV: 'production'
+      }
+    },
+    {
+      name: 'club-frontend',
+      cwd: './frontend',
+      script: 'node_modules/next/dist/bin/next',
+      args: 'start',
+      env: {
+        PORT: 3001,
+        NODE_ENV: 'production'
+      }
+    }
+  ]
+};

@@ -1,0 +1,21 @@
+[
+  {
+    "id": "socio-1764352381938",
+    "dni": "24948685",
+    "nombre": "Edgardo",
+    "apellido": "Alvarez",
+    "email": "edgardo75@gmail.com",
+    "telefono": "02644562700",
+    "fechaNacimiento": "2025-11-14",
+    "direccion": "Holanda 666 Norte Entre Suecia y Noruega",
+    "fechaIngreso": "2025-11-28",
+    "estado": "activo",
+    "numeroSocio": "SOC-000001",
+    "foto": "http://localhost:3000/uploads/1764356624417-494034791.jpg",
+    "ultimaRevisionMedica": "2025-10-10",
+    "proximaRevisionMedica": "2025-10-25",
+    "observaciones": "sarasa",
+    "createdAt": "2025-11-28T17:53:01.938Z",
+    "updatedAt": "2025-11-28T19:03:44.419Z"
+  }
+]
