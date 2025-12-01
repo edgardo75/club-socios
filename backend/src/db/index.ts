@@ -2,7 +2,8 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 
-const dbPath = path.join(process.cwd(), 'data', 'club.db');
+const dbPath = path.join(process.cwd(), 'club-socios.db');
+console.log('>>> DATABASE PATH:', dbPath);
 const dataDir = path.dirname(dbPath);
 
 if (!fs.existsSync(dataDir)) {
@@ -39,7 +40,8 @@ export function initDatabase() {
       proximaRevisionMedica TEXT,
       revisionMedicaVigente INTEGER DEFAULT 0,
       createdAt TEXT,
-      updatedAt TEXT
+      updatedAt TEXT,
+      deletedAt TEXT
     )
   `);
 

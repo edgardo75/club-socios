@@ -64,8 +64,13 @@ export default function PagosPage() {
     }
   }, [formData.socioDni, config, socios]);
 
+  const [submitting, setSubmitting] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
+    
+    setSubmitting(true);
     try {
       await pagosService.create(formData);
       setShowModal(false);
@@ -81,11 +86,16 @@ export default function PagosPage() {
     } catch (error) {
       console.error('Error creating pago:', error);
       alert('Error al registrar el pago');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleConfigSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
+
+    setSubmitting(true);
     try {
       const updatedConfig = await configService.updateConfig(configFormData);
       setConfig(updatedConfig);
@@ -93,6 +103,8 @@ export default function PagosPage() {
     } catch (error) {
       console.error('Error updating config:', error);
       alert('Error al actualizar la configuración');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -168,14 +180,16 @@ export default function PagosPage() {
                   type="button"
                   onClick={() => setShowConfigModal(false)}
                   className="px-4 py-2 text-slate-300 hover:text-white"
+                  disabled={submitting}
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg"
+                  disabled={submitting}
+                  className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Guardar Cambios
+                  {submitting ? 'Guardando...' : 'Guardar Cambios'}
                 </button>
               </div>
             </form>
@@ -243,14 +257,16 @@ export default function PagosPage() {
                   type="button"
                   onClick={() => setShowModal(false)}
                   className="px-4 py-2 text-slate-300 hover:text-white"
+                  disabled={submitting}
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg"
+                  disabled={submitting}
+                  className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Guardar
+                  {submitting ? 'Guardando...' : 'Guardar'}
                 </button>
               </div>
             </form>

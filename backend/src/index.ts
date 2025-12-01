@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
+import { rateLimit } from 'express-rate-limit';
 import { initDatabase } from './db';
 import { migrateData } from './db/migrate';
 import sociosRoutes from './routes/socios.routes';
@@ -21,7 +22,17 @@ migrateData();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Rate Limiting: Max 100 requests per 15 minutes
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	limit: 1000, // Limit each IP to 1000 requests per `window` (here, per 15 minutes)
+	standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  message: { error: 'Demasiadas solicitudes desde esta IP, por favor intente nuevamente en 15 minutos.' }
+});
+
 // Middlewares
+app.use(limiter); // Apply rate limiting globally
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

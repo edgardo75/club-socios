@@ -21,16 +21,32 @@ Si tienes el código fuente (por ejemplo, en un pendrive o repositorio git):
     cd C:\club-socios
     ```
 3.  **Instalar dependencias**:
-    Ejecuta el siguiente script para instalar todo automáticamente:
+    Debes instalar las librerías tanto en la carpeta del frontend como en la del backend. Ejecuta estos comandos uno por uno:
+    
     ```powershell
+    # Instalar backend
+    cd backend
     npm install
-    cd frontend && npm install && cd ..
-    cd backend && npm install && cd ..
+    cd ..
+
+    # Instalar frontend
+    cd frontend
+    npm install
+    cd ..
     ```
 4.  **Configurar entorno**:
-    *   Asegúrate de que existan los archivos `.env` en `frontend` y `backend`. Si no existen, créalos copiando los ejemplos (o usa los valores por defecto).
-    *   **Backend (.env)**: `PORT=3000`
-    *   **Frontend (.env)**: `NEXT_PUBLIC_API_URL=http://localhost:3000`
+    Crea un archivo llamado `.env` dentro de cada carpeta con el siguiente contenido mínimo:
+
+    *   **En `backend/.env`**:
+        ```env
+        PORT=3000
+        ```
+
+    *   **En `frontend/.env`**:
+        ```env
+        NEXT_PUBLIC_API_URL=http://localhost:3000
+        ```
+        *(Nota: Si instalas en red, cambia `localhost` por la IP del servidor, ej: `http://192.168.1.15:3000`)*
 
 5.  **Construir la aplicación**:
     Para optimizar el rendimiento, compila la aplicación:
@@ -50,8 +66,8 @@ Si tienes el código fuente (por ejemplo, en un pendrive o repositorio git):
         ```powershell
         pm2 start ecosystem.config.js
         pm2 save
-        pm2 startup
         ```
+        *(Nota: Para que la app inicie sola al prender la PC, ve a la sección **"Inicio Automático con Windows"** al final de esta guía).*
 
 ## Opción 2: Migrar con Datos Existentes
 

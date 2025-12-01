@@ -198,7 +198,7 @@ export default function ImprimirCarnetPage() {
                 </div>
               </div>
               <div className="text-xs font-mono text-blue-200 shrink-0 ml-2">
-                #{selectedSocio.numeroSocio || selectedSocio.dni.slice(-4)}
+                #{selectedSocio.numeroSocio && selectedSocio.numeroSocio !== 'NaN' ? selectedSocio.numeroSocio : `SOC-${selectedSocio.dni.slice(-6)}`}
               </div>
             </div>
 
@@ -244,7 +244,7 @@ export default function ImprimirCarnetPage() {
                   </div>
                   <div>
                     <div className="text-[8px] text-slate-500 uppercase tracking-wider font-bold">Vencimiento</div>
-                    <div className="font-mono text-sm text-emerald-600 font-bold">
+                    <div className="font-mono text-lg text-emerald-600 font-bold">
                       {selectedSocio.proximaRevisionMedica 
                         ? new Date(selectedSocio.proximaRevisionMedica).toLocaleDateString()
                         : '---'}

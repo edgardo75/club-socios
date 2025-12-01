@@ -2,9 +2,11 @@ import { fetchApi } from './api';
 import { Socio, CreateSocioDto, UpdateSocioDto } from '../types/socio';
 
 export const sociosService = {
-  getAll: async (search?: string): Promise<Socio[]> => {
-    const query = search ? `?search=${encodeURIComponent(search)}` : '';
-    return fetchApi(`/socios${query}`);
+  getAll: async (search?: string, includeDeleted: boolean = false): Promise<Socio[]> => {
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (includeDeleted) params.append('includeDeleted', 'true');
+    return fetchApi(`/socios?${params.toString()}`);
   },
 
   getByDni: async (dni: string): Promise<Socio> => {
@@ -34,4 +36,15 @@ export const sociosService = {
       method: 'DELETE',
     });
   },
+
+  restore: async (dni: string): Promise<void> => {
+    return fetchApi(`/socios/${dni}/restore`, {
+      method: 'POST',
+    });
+  },
+
+  checkHasDeleted: async (): Promise<boolean> => {
+    const res = await fetchApi('/socios/check/has-deleted');
+    return res.hasDeleted;
+  }
 };

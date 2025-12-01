@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CreateSocioDto, Socio } from '@/types/socio';
-import { sociosService } from '@/services/socios';
+import { useCreateSocio, useUpdateSocio } from '@/hooks/useSocios';
 
 interface SocioFormProps {
   initialData?: Socio;
@@ -12,8 +12,11 @@ interface SocioFormProps {
 
 export default function SocioForm({ initialData, isEditing = false }: SocioFormProps) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  
+  const createSocio = useCreateSocio();
+  const updateSocio = useUpdateSocio();
   
   const [formData, setFormData] = useState<CreateSocioDto>({
     dni: initialData?.dni || '',
@@ -29,6 +32,7 @@ export default function SocioForm({ initialData, isEditing = false }: SocioFormP
     fechaIngreso: initialData?.fechaIngreso?.split('T')[0] || new Date().toISOString().split('T')[0],
     ultimaRevisionMedica: initialData?.ultimaRevisionMedica?.split('T')[0] || '',
     proximaRevisionMedica: initialData?.proximaRevisionMedica?.split('T')[0] || '',
+    numeroSocio: initialData?.numeroSocio || '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -36,33 +40,76 @@ export default function SocioForm({ initialData, isEditing = false }: SocioFormP
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const validateForm = () => {
+    // 1. Campos Obligatorios
+    if (!formData.dni || !formData.nombre || !formData.apellido || !formData.telefono) {
+      setError('Complete los campos obligatorios: DNI, Nombre, Apellido y Teléfono.');
+      return false;
+    }
+
+    // 2. Validar DNI (Solo números, 7-8 dígitos)
+    const dniRegex = /^\d{7,8}$/;
+    if (!dniRegex.test(formData.dni)) {
+      setError('El DNI debe contener solo números (7 u 8 dígitos).');
+      return false;
+    }
+
+    // 3. Validar Teléfono (Números, espacios, guiones, +)
+    const phoneRegex = /^[\d\s\-\+]+$/;
+    if (!phoneRegex.test(formData.telefono)) {
+      setError('El teléfono contiene caracteres inválidos.');
+      return false;
+    }
+
+    // 4. Validar Nombre y Apellido (Letras y espacios)
+    const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    if (!nameRegex.test(formData.nombre) || !nameRegex.test(formData.apellido)) {
+      setError('Nombre y Apellido solo pueden contener letras.');
+      return false;
+    }
+
+    // 5. Validar Email (si existe)
+    if (formData.email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        setError('El formato del email no es válido.');
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    if (!validateForm()) return;
+
     setError('');
+    setSuccess('');
 
     try {
       if (isEditing && initialData) {
-        await sociosService.update(initialData.dni, formData);
+        await updateSocio.mutateAsync({ dni: initialData.dni, data: formData });
       } else {
-        await sociosService.create(formData);
+        await createSocio.mutateAsync(formData);
       }
-      router.push('/socios');
-      router.refresh();
+      
+      setSuccess('Socio guardado correctamente');
+      
+      // Delay redirect to show success message
+      setTimeout(() => {
+        router.push('/socios');
+      }, 1500);
+      
     } catch (err: any) {
       setError(err.message || 'Error al guardar el socio');
-    } finally {
-      setLoading(false);
     }
   };
 
+  const isLoading = createSocio.isPending || updateSocio.isPending;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6 bg-slate-900 p-8 rounded-xl border border-slate-800 shadow-xl max-w-4xl mx-auto">
-      {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-lg">
-          {error}
-        </div>
-      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
@@ -75,6 +122,18 @@ export default function SocioForm({ initialData, isEditing = false }: SocioFormP
             value={formData.dni}
             onChange={handleChange}
             className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-slate-400">Número de Socio</label>
+          <input
+            type="text"
+            name="numeroSocio"
+            value={formData.numeroSocio || ''}
+            onChange={handleChange}
+            placeholder="Auto-generado si se deja vacío"
+            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
 
@@ -140,10 +199,11 @@ export default function SocioForm({ initialData, isEditing = false }: SocioFormP
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-400">Teléfono</label>
+          <label className="text-sm font-medium text-slate-400">Teléfono *</label>
           <input
             type="tel"
             name="telefono"
+            required
             value={formData.telefono}
             onChange={handleChange}
             className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -221,21 +281,40 @@ export default function SocioForm({ initialData, isEditing = false }: SocioFormP
         </div>
       </div>
 
-      <div className="flex justify-end gap-4 pt-4 border-t border-slate-800">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="px-6 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
-        >
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg transition-colors font-medium shadow-lg shadow-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? 'Guardando...' : isEditing ? 'Actualizar Socio' : 'Crear Socio'}
-        </button>
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-4 border-t border-slate-800">
+        <div className="flex-1">
+          {error && (
+            <div className="text-red-400 text-sm font-medium bg-red-900/20 px-4 py-2 rounded-lg border border-red-900/50">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="text-emerald-400 text-sm font-medium bg-emerald-900/20 px-4 py-2 rounded-lg border border-emerald-900/50">
+              {success}
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="px-6 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={isLoading || !!success}
+            className={`px-6 py-2 rounded-lg transition-colors font-medium shadow-lg ${
+              success 
+                ? 'bg-emerald-600 text-white shadow-emerald-900/20' 
+                : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20'
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            {success ? '¡Guardado!' : isLoading ? 'Guardando...' : isEditing ? 'Actualizar Socio' : 'Crear Socio'}
+          </button>
+        </div>
       </div>
     </form>
   );

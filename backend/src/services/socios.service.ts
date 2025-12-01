@@ -3,14 +3,23 @@ import db from '../db';
 import crypto from 'crypto';
 
 export class SociosService {
-  async getAll(search?: string): Promise<Socio[]> {
+  async getAll(search?: string, includeDeleted: boolean = false): Promise<Socio[]> {
     let query = 'SELECT * FROM socios';
     const params: any[] = [];
+    const conditions: string[] = [];
+
+    if (!includeDeleted) {
+      conditions.push('deletedAt IS NULL');
+    }
 
     if (search) {
-      query += ' WHERE nombre LIKE ? OR apellido LIKE ? OR dni LIKE ?';
+      conditions.push('(nombre LIKE ? OR apellido LIKE ? OR dni LIKE ?)');
       const term = `%${search}%`;
       params.push(term, term, term);
+    }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
     }
     
     query += ' ORDER BY apellido ASC, nombre ASC';
@@ -40,15 +49,45 @@ export class SociosService {
   }
 
   async create(data: CreateSocioDto): Promise<Socio> {
+    console.log('[CREATE] Validating data:', JSON.stringify(data));
+    // Validate Name and Surname
+    const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    if (!nameRegex.test(data.nombre) || !nameRegex.test(data.apellido)) {
+      console.error('[CREATE] Validation failed for name/surname');
+      throw new Error('Nombre y Apellido solo pueden contener letras y espacios');
+    }
+    console.log('[CREATE] Validation passed');
+
     // Check if DNI exists
-    const existing = db.prepare('SELECT dni FROM socios WHERE dni = ?').get(data.dni);
+    const existing = db.prepare('SELECT * FROM socios WHERE dni = ?').get(data.dni) as Socio;
+    
     if (existing) {
+      if (existing.deletedAt) {
+        // Auto-restore logic
+        await this.restore(data.dni);
+        return this.update(data.dni, data);
+      }
       throw new Error('Ya existe un socio con este DNI');
+    }
+
+    // Generate numeroSocio if not provided
+    let numeroSocio = data.numeroSocio;
+    if (!numeroSocio) {
+      const lastSocio = db.prepare('SELECT numeroSocio FROM socios ORDER BY CAST(numeroSocio AS INTEGER) DESC LIMIT 1').get() as { numeroSocio: string };
+      let lastNum = 0;
+      if (lastSocio && lastSocio.numeroSocio) {
+        const parsed = parseInt(lastSocio.numeroSocio);
+        if (!isNaN(parsed)) {
+          lastNum = parsed;
+        }
+      }
+      numeroSocio = (lastNum + 1).toString();
     }
 
     const nuevoSocio: Socio = {
       id: crypto.randomUUID(),
       ...data,
+      numeroSocio,
       fechaIngreso: data.fechaIngreso || new Date().toISOString().split('T')[0],
       estado: data.estado || 'activo',
       tipo: data.tipo || 'activo',
@@ -71,15 +110,32 @@ export class SociosService {
       )
     `);
 
-    stmt.run({
+    // Sanitize undefined values to null for SQLite
+    const params = {
       ...nuevoSocio,
+      email: nuevoSocio.email || null,
+      telefono: nuevoSocio.telefono || null,
+      fechaNacimiento: nuevoSocio.fechaNacimiento || null,
+      direccion: nuevoSocio.direccion || null,
+      foto: nuevoSocio.foto || null,
+      observaciones: nuevoSocio.observaciones || null,
+      ultimaRevisionMedica: nuevoSocio.ultimaRevisionMedica || null,
+      proximaRevisionMedica: nuevoSocio.proximaRevisionMedica || null,
       revisionMedicaVigente: nuevoSocio.revisionMedicaVigente ? 1 : 0
-    });
+    };
+
+    stmt.run(params);
 
     return nuevoSocio;
   }
 
-  async update(dni: string, data: UpdateSocioDto): Promise<Socio> {
+  async update(dni: string, data: UpdateSocioDto & { numeroSocio?: string }): Promise<Socio> {
+    // Validate Name and Surname if provided
+    const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+    if ((data.nombre && !nameRegex.test(data.nombre)) || (data.apellido && !nameRegex.test(data.apellido))) {
+      throw new Error('Nombre y Apellido solo pueden contener letras y espacios');
+    }
+
     const currentSocio = await this.getByDni(dni);
     
     const updatedSocio: Socio = {
@@ -125,7 +181,19 @@ export class SociosService {
   }
 
   async delete(dni: string): Promise<boolean> {
-    const stmt = db.prepare('DELETE FROM socios WHERE dni = ?');
+    // Soft delete
+    const stmt = db.prepare('UPDATE socios SET deletedAt = ? WHERE dni = ?');
+    const result = stmt.run(new Date().toISOString(), dni);
+    
+    if (result.changes === 0) {
+      throw new Error('Socio no encontrado');
+    }
+    
+    return true;
+  }
+
+  async restore(dni: string): Promise<boolean> {
+    const stmt = db.prepare('UPDATE socios SET deletedAt = NULL WHERE dni = ?');
     const result = stmt.run(dni);
     
     if (result.changes === 0) {
@@ -133,5 +201,11 @@ export class SociosService {
     }
     
     return true;
+  }
+
+  async hasDeleted(): Promise<boolean> {
+    const stmt = db.prepare('SELECT COUNT(*) as count FROM socios WHERE deletedAt IS NOT NULL');
+    const result = stmt.get() as { count: number };
+    return result.count > 0;
   }
 }

@@ -19,6 +19,7 @@ export interface Socio {
   revisionMedicaVigente?: boolean; // Si la revisión médica está vigente
   createdAt?: string;
   updatedAt?: string;
+  deletedAt?: string;
 }
 
 export interface CreateSocioDto {
@@ -32,6 +33,7 @@ export interface CreateSocioDto {
   fechaIngreso?: string;
   estado?: 'activo' | 'inactivo' | 'suspendido';
   tipo?: 'activo' | 'adherente';
+  numeroSocio?: string;
   foto?: string;
   ultimaRevisionMedica?: string;
   proximaRevisionMedica?: string;
@@ -48,6 +50,7 @@ export interface UpdateSocioDto {
   fechaIngreso?: string;
   estado?: 'activo' | 'inactivo' | 'suspendido';
   tipo?: 'activo' | 'adherente';
+  numeroSocio?: string;
   foto?: string;
   ultimaRevisionMedica?: string;
   proximaRevisionMedica?: string;
