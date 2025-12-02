@@ -2,7 +2,7 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 
-const dbPath = path.join(process.cwd(), 'club-socios.db');
+const dbPath = path.join(process.cwd(), 'data', 'club-socios.db');
 console.log('>>> DATABASE PATH:', dbPath);
 const dataDir = path.dirname(dbPath);
 

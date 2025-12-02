@@ -163,3 +163,30 @@ Si la opción A falla, puedes crear un acceso directo:
 3.  Crea un **Acceso Directo** a ese archivo `iniciar_club.bat` dentro de esa carpeta.
 
 
+## Despliegue en la Nube (Cloud)
+
+Sí, puedes subir esta aplicación a la nube para acceder desde cualquier lugar (no solo red local).
+
+### Opción Recomendada: VPS (Servidor Privado Virtual)
+Servicios como **DigitalOcean, AWS Lightsail, o Hetzner**.
+
+1.  **Requisito**: Un servidor con Linux (Ubuntu 20.04+).
+2.  **Método**: Docker (es lo más fácil y robusto).
+3.  **Pasos**:
+    *   Sube tu proyecto al servidor (git clone o scp).
+    *   Instala Docker y Docker Compose en el servidor.
+    *   Ejecuta `docker-compose up -d --build`.
+
+### Opción PaaS (Railway, Render, etc.)
+Servicios donde solo subes el código.
+
+*   **Advertencia**: Esta app usa **SQLite** (un archivo local) y guarda imágenes en disco.
+*   **Requisito Crítico**: Necesitas configurar **Volúmenes Persistentes** (Persistent Volumes) para:
+    *   `/app/backend/data` (Base de datos)
+    *   `/app/backend/uploads` (Fotos)
+*   *Si no configuras volúmenes, perderás todos los datos cada vez que la app se reinicie o actualice.*
+
+### ¿Qué necesito cambiar?
+Generalmente nada en el código. Solo asegúrate de configurar las variables de entorno en el panel de control de tu proveedor de nube:
+*   `PORT`: 3000 (o el que asigne el proveedor).
+*   `NEXT_PUBLIC_API_URL`: La URL pública de tu dominio (ej: `https://mi-club.com/api`).

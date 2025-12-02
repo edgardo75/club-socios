@@ -9,8 +9,31 @@ const router = Router();
 const sociosService = new SociosService();
 
 /**
- * GET /api/socios
- * Obtener todos los socios
+ * @swagger
+ * /api/socios:
+ *   get:
+ *     summary: Obtener todos los socios
+ *     tags: [Socios]
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Término de búsqueda (nombre, apellido o DNI)
+ *       - in: query
+ *         name: includeDeleted
+ *         schema:
+ *           type: boolean
+ *         description: Incluir socios eliminados
+ *     responses:
+ *       200:
+ *         description: Lista de socios
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Socio'
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -31,8 +54,27 @@ router.get('/', async (req: Request, res: Response) => {
 
 
 /**
- * GET /api/socios/:dni
- * Obtener un socio por DNI
+ * @swagger
+ * /api/socios/{dni}:
+ *   get:
+ *     summary: Obtener un socio por DNI
+ *     tags: [Socios]
+ *     parameters:
+ *       - in: path
+ *         name: dni
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: DNI del socio
+ *     responses:
+ *       200:
+ *         description: Datos del socio
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Socio'
+ *       404:
+ *         description: Socio no encontrado
  */
 router.get('/:dni', async (req: Request, res: Response) => {
   try {
@@ -44,8 +86,38 @@ router.get('/:dni', async (req: Request, res: Response) => {
 });
 
 /**
- * POST /api/socios
- * Crear un nuevo socio
+ * @swagger
+ * /api/socios:
+ *   post:
+ *     summary: Crear un nuevo socio
+ *     tags: [Socios]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               dni:
+ *                 type: string
+ *               nombre:
+ *                 type: string
+ *               apellido:
+ *                 type: string
+ *               foto:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: Socio creado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Socio'
+ *       400:
+ *         description: Datos inválidos
+ *       409:
+ *         description: El socio ya existe
  */
 // ... imports
 

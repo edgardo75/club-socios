@@ -49,6 +49,13 @@ Para ejecutar el sistema en un entorno de producción o desarrollo, se recomiend
 Para instrucciones detalladas sobre cómo instalar, configurar y desplegar la aplicación, por favor consulta la guía de despliegue:
 
 👉 **[Ver Guía de Despliegue (DEPLOY.md)](./DEPLOY.md)**
+👉 **[Ver Guía de Base de Datos y Migraciones (MIGRATION_GUIDE.md)](./MIGRATION_GUIDE.md)**
+
+## 📚 Documentación de API
+
+El backend incluye documentación interactiva (Swagger). Una vez iniciado el servidor, puedes verla en:
+
+👉 **[http://localhost:3000/api-docs](http://localhost:3000/api-docs)**
 
 ### Comandos Rápidos
 

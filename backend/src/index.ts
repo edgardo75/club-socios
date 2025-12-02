@@ -11,6 +11,8 @@ import pagosRoutes from './routes/pagos.routes';
 import configRoutes from './routes/config.routes';
 import validacionRoutes from './routes/validacion.routes';
 import informesRoutes from './routes/informes.routes';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger';
 
 // Cargar variables de entorno
 dotenv.config();
@@ -72,6 +74,9 @@ app.use('/api/config', configRoutes);
 app.use('/api/validacion', validacionRoutes);
 app.use('/api/informes', informesRoutes);
 
+// Documentación Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // Ruta de salud
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'API funcionando correctamente' });
@@ -86,4 +91,5 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
   console.log(`📋 API disponible en http://localhost:${PORT}/api/socios`);
+  console.log(`📚 Documentación Swagger en http://localhost:${PORT}/api-docs`);
 });
