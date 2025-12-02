@@ -49,11 +49,13 @@ Si tienes el código fuente (por ejemplo, en un pendrive o repositorio git):
         *(Nota: Si instalas en red, cambia `localhost` por la IP del servidor, ej: `http://192.168.1.15:3000`)*
 
 5.  **Construir la aplicación**:
-    Para optimizar el rendimiento, compila la aplicación:
+    Para facilitar este paso, hemos creado un script automático. Simplemente ejecuta:
+    
     ```powershell
-    cd frontend && npm run build && cd ..
-    cd backend && npm run build && cd ..
+    .\build_app.bat
     ```
+    
+    *Este script instalará todas las dependencias y construirá tanto el frontend como el backend.*
 
 6.  **Iniciar la aplicación**:
     Puedes usar el script de inicio rápido si lo copiaste, o usar PM2.
