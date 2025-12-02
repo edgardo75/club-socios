@@ -4,6 +4,10 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CreateSocioDto, Socio } from '@/types/socio';
 import { useCreateSocio, useUpdateSocio } from '@/hooks/useSocios';
+import SocioPersonalData from './socios/SocioPersonalData';
+import SocioContactData from './socios/SocioContactData';
+import SocioMedicalData from './socios/SocioMedicalData';
+import SocioPhotoUpload from './socios/SocioPhotoUpload';
 
 interface SocioFormProps {
   initialData?: Socio;
@@ -110,175 +114,34 @@ export default function SocioForm({ initialData, isEditing = false }: SocioFormP
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 bg-slate-900 p-8 rounded-xl border border-slate-800 shadow-xl max-w-4xl mx-auto">
+      
+      <div className="space-y-6">
+        {/* Sección 1: Datos Personales */}
+        <SocioPersonalData 
+          formData={formData} 
+          handleChange={handleChange} 
+          isEditing={isEditing} 
+        />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-400">DNI *</label>
-          <input
-            type="text"
-            name="dni"
-            required
-            disabled={isEditing}
-            value={formData.dni}
-            onChange={handleChange}
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
-          />
+        {/* Sección 2: Foto */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           <SocioPhotoUpload 
+             formData={formData} 
+             handleChange={handleChange} 
+           />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-400">Número de Socio</label>
-          <input
-            type="text"
-            name="numeroSocio"
-            value={formData.numeroSocio || ''}
-            onChange={handleChange}
-            placeholder="Auto-generado si se deja vacío"
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
+        {/* Sección 3: Datos de Contacto */}
+        <SocioContactData 
+          formData={formData} 
+          handleChange={handleChange} 
+        />
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-400">Foto (URL)</label>
-          <input
-            type="url"
-            name="foto"
-            value={formData.foto || ''}
-            onChange={handleChange}
-            placeholder="https://..."
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-400">Estado</label>
-          <select
-            name="estado"
-            value={formData.estado}
-            onChange={handleChange}
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="activo">Activo</option>
-            <option value="inactivo">Inactivo</option>
-            <option value="suspendido">Suspendido</option>
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-400">Nombre *</label>
-          <input
-            type="text"
-            name="nombre"
-            required
-            value={formData.nombre}
-            onChange={handleChange}
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-400">Apellido *</label>
-          <input
-            type="text"
-            name="apellido"
-            required
-            value={formData.apellido}
-            onChange={handleChange}
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-400">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-400">Teléfono *</label>
-          <input
-            type="tel"
-            name="telefono"
-            required
-            value={formData.telefono}
-            onChange={handleChange}
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-400">Fecha de Nacimiento</label>
-          <input
-            type="date"
-            name="fechaNacimiento"
-            value={formData.fechaNacimiento}
-            onChange={handleChange}
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-400">Fecha de Ingreso</label>
-          <input
-            type="date"
-            name="fechaIngreso"
-            value={formData.fechaIngreso}
-            onChange={handleChange}
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div className="col-span-1 md:col-span-2 pt-4 border-t border-slate-800">
-          <h3 className="text-lg font-medium text-white mb-4">Información Médica</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-400">Última Revisión</label>
-              <input
-                type="date"
-                name="ultimaRevisionMedica"
-                value={formData.ultimaRevisionMedica || ''}
-                onChange={handleChange}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-400">Vencimiento Revisión</label>
-              <input
-                type="date"
-                name="proximaRevisionMedica"
-                value={formData.proximaRevisionMedica || ''}
-                onChange={handleChange}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="col-span-1 md:col-span-2 space-y-2">
-          <label className="text-sm font-medium text-slate-400">Dirección</label>
-          <input
-            type="text"
-            name="direccion"
-            value={formData.direccion}
-            onChange={handleChange}
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div className="col-span-1 md:col-span-2 space-y-2">
-          <label className="text-sm font-medium text-slate-400">Observaciones</label>
-          <textarea
-            name="observaciones"
-            rows={3}
-            value={formData.observaciones}
-            onChange={handleChange}
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
+        {/* Sección 4: Datos Médicos */}
+        <SocioMedicalData 
+          formData={formData} 
+          handleChange={handleChange} 
+        />
       </div>
 
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-4 border-t border-slate-800">
