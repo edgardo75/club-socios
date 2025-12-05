@@ -1,3 +1,5 @@
+[![Read in English](https://img.shields.io/badge/Read%20in-English-blue?style=for-the-badge&logo=appveyor)](README.en.md)
+
 # Club Socios - Sistema de Gestión
 
 Sistema integral para la gestión de socios, pagos y carnets de la **Unión Vecinal Barrio 25 de Mayo**.

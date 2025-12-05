@@ -1,3 +1,5 @@
+[![Read in English](https://img.shields.io/badge/Read%20in-English-blue?style=for-the-badge&logo=appveyor)](GIT_GUIDE.en.md)
+
 # Guía para subir tu proyecto a GitHub
 
 Sigue estos pasos para guardar tu código en la nube (GitHub).

@@ -1,3 +1,5 @@
+[![Read in English](https://img.shields.io/badge/Read%20in-English-blue?style=for-the-badge&logo=appveyor)](DEPLOY.en.md)
+
 # Guía de Instalación y Despliegue - Club Socios
 
 Esta guía detalla los pasos para instalar la aplicación en un nuevo equipo.
