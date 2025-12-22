@@ -9,7 +9,7 @@ export interface Socio {
   direccion?: string;
   fechaIngreso: string;
   estado: 'activo' | 'inactivo' | 'suspendido';
-  tipo: 'activo' | 'adherente'; // Nuevo campo
+  tipo: 'activo' | 'adherente' | 'vitalicio'; // Nuevo campo
   numeroSocio?: string;
   foto?: string;
   observaciones?: string;
@@ -32,7 +32,7 @@ export interface CreateSocioDto {
   direccion?: string;
   fechaIngreso?: string;
   estado?: 'activo' | 'inactivo' | 'suspendido';
-  tipo?: 'activo' | 'adherente';
+  tipo?: 'activo' | 'adherente' | 'vitalicio';
   numeroSocio?: string;
   foto?: string;
   ultimaRevisionMedica?: string;
@@ -49,7 +49,7 @@ export interface UpdateSocioDto {
   direccion?: string;
   fechaIngreso?: string;
   estado?: 'activo' | 'inactivo' | 'suspendido';
-  tipo?: 'activo' | 'adherente';
+  tipo?: 'activo' | 'adherente' | 'vitalicio';
   numeroSocio?: string;
   foto?: string;
   ultimaRevisionMedica?: string;

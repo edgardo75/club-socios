@@ -22,6 +22,9 @@ export default function SocioForm({ initialData, isEditing = false }: SocioFormP
   const createSocio = useCreateSocio();
   const updateSocio = useUpdateSocio();
   
+  // State for the selected photo file
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+
   const [formData, setFormData] = useState<CreateSocioDto>({
     dni: initialData?.dni || '',
     nombre: initialData?.nombre || '',
@@ -42,6 +45,10 @@ export default function SocioForm({ initialData, isEditing = false }: SocioFormP
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileSelect = (file: File | null) => {
+    setPhotoFile(file);
   };
 
   const validateForm = () => {
@@ -92,10 +99,26 @@ export default function SocioForm({ initialData, isEditing = false }: SocioFormP
     setSuccess('');
 
     try {
+      let dataToSend: CreateSocioDto | FormData = formData;
+
+      // If there is a file, convert to FormData
+      if (photoFile) {
+        const formDataObj = new FormData();
+        // Append all text fields
+        Object.entries(formData).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && key !== 'foto') {
+            formDataObj.append(key, value as string);
+          }
+        });
+        // Append the file
+        formDataObj.append('foto', photoFile);
+        dataToSend = formDataObj;
+      }
+
       if (isEditing && initialData) {
-        await updateSocio.mutateAsync({ dni: initialData.dni, data: formData });
+        await updateSocio.mutateAsync({ dni: initialData.dni, data: dataToSend });
       } else {
-        await createSocio.mutateAsync(formData);
+        await createSocio.mutateAsync(dataToSend);
       }
       
       setSuccess('Socio guardado correctamente');
@@ -127,7 +150,8 @@ export default function SocioForm({ initialData, isEditing = false }: SocioFormP
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
            <SocioPhotoUpload 
              formData={formData} 
-             handleChange={handleChange} 
+             handleChange={handleChange}
+             onFileSelect={handleFileSelect}
            />
         </div>
 

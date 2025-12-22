@@ -49,6 +49,20 @@ export default function SocioPersonalData({ formData, handleChange, isEditing }:
       </div>
 
       <div className="space-y-2">
+        <label className="text-sm font-medium text-slate-400">Tipo de Socio</label>
+        <select
+          name="tipo"
+          value={formData.tipo || 'activo'}
+          onChange={handleChange}
+          className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="activo">Activo</option>
+          <option value="adherente">Adherente</option>
+          <option value="vitalicio">Vitalicio</option>
+        </select>
+      </div>
+
+      <div className="space-y-2">
         <label className="text-sm font-medium text-slate-400">Nombre *</label>
         <input
           type="text"

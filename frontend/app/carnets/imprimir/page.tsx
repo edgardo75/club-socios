@@ -100,8 +100,26 @@ export default function ImprimirCarnetPage() {
     }
   };
 
+
+
   return (
     <div className="space-y-8 print:space-y-0">
+      <style jsx global>{`
+        @media print {
+          @page {
+            margin: 0;
+            size: 85.6mm 53.98mm;
+          }
+          body {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            background-color: white !important;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}</style>
       {/* Controls - Hidden on print */}
       <div className="space-y-6 print:hidden">
         <h2 className="text-3xl font-bold text-white">Impresión de Carnets</h2>
@@ -167,45 +185,33 @@ export default function ImprimirCarnetPage() {
 
       {/* Preview / Print Area */}
       {selectedSocio && (
-        <div className="flex justify-center print:block print:absolute print:top-0 print:left-0 print:w-full print:h-full print:bg-white print:p-0">
+        <div className="flex justify-center items-center py-10 print:p-0 print:block">
           {/* Carnet Card - CR80 Size (85.6mm x 53.98mm) */}
           <div 
             ref={carnetRef}
-            className="w-[85.6mm] h-[53.98mm] relative overflow-hidden shadow-2xl print:shadow-none rounded-xl print:rounded-none flex flex-col bg-white text-slate-900 print:border print:border-slate-300"
+            className="w-[85.6mm] h-[53.98mm] relative shadow-2xl print:shadow-none rounded-xl print:rounded-none bg-white text-slate-900 print:border print:border-slate-300"
+            style={{ boxSizing: 'border-box' }}
           >
-            
-            {/* Background Pattern - Removed for clean white look */}
-            <div className="absolute inset-0 opacity-5">
-              <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="black" strokeWidth="0.5"/>
-                  </pattern>
-                </defs>
-                <rect width="100%" height="100%" fill="url(#grid)" />
-              </svg>
-            </div>
-
-            {/* Header */}
-            <div className="relative z-10 h-14 bg-slate-900 flex items-center justify-between px-4">
-              <div className="flex items-center gap-3 overflow-hidden">
+            {/* Header - Fixed Height */}
+            <div className="absolute top-0 left-0 w-full h-[16mm] bg-[#0f172a] flex items-center justify-between px-4 z-20">
+              <div className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shrink-0">
-                  <span className="font-bold text-xs text-white">UV</span>
+                  <span className="font-bold text-[10px] text-white">UV</span>
                 </div>
-                <div className="flex flex-col leading-none">
-                  <span className="font-bold tracking-wider text-xs text-white uppercase whitespace-nowrap">Unión Vecinal</span>
-                  <span className="text-[10px] text-blue-200 uppercase tracking-widest whitespace-nowrap">Barrio 25 de Mayo</span>
+                <div className="flex flex-col">
+                  <span className="font-bold text-[11px] text-white uppercase leading-tight">Unión Vecinal</span>
+                  <span className="text-[8px] text-blue-200 uppercase tracking-tighter leading-tight mt-0.5">Barrio 25 de Mayo</span>
                 </div>
               </div>
-              <div className="text-xs font-mono text-blue-200 shrink-0 ml-2">
+              <div className="text-[9px] font-mono text-blue-200">
                 #{selectedSocio.numeroSocio && selectedSocio.numeroSocio !== 'NaN' ? selectedSocio.numeroSocio : `SOC-${selectedSocio.dni.slice(-6)}`}
               </div>
             </div>
 
-            {/* Body */}
-            <div className="relative z-10 flex-1 p-2 flex gap-3 items-center">
+            {/* Content Area - Shifted down by Header Height */}
+            <div className="absolute top-[16mm] bottom-[8mm] left-0 w-full p-2 flex gap-3 items-center z-10">
               {/* Photo Area */}
-              <div className="w-[26mm] h-[28mm] bg-slate-800 rounded-lg shrink-0 overflow-hidden border border-slate-600 shadow-inner relative">
+              <div className="w-[26mm] h-[28mm] bg-slate-100 rounded-lg shrink-0 overflow-hidden border border-slate-200 relative">
                 {selectedSocio.foto && !imgError ? (
                   <img 
                     key={selectedSocio.foto}
@@ -217,59 +223,60 @@ export default function ImprimirCarnetPage() {
                     crossOrigin="anonymous"
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 bg-slate-800">
-                    <svg className="w-8 h-8 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-50">
+                    <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    <span className="text-[8px] uppercase">{selectedSocio.foto ? 'Error' : 'Sin Foto'}</span>
+                    <span className="text-[7px] uppercase">{selectedSocio.foto ? 'Error' : 'Sin Foto'}</span>
                   </div>
                 )}
               </div>
 
-              {/* Info */}
-              <div className="flex-1 min-w-0 flex flex-col justify-center h-full">
-                <div className="mb-1">
-                  <h2 className="text-xl font-bold leading-none truncate uppercase tracking-tight text-slate-900">
+              {/* Info - Centered vertically in the body area */}
+              <div className="flex-1 flex flex-col justify-center gap-1.5 overflow-hidden">
+                <div>
+                  <h2 className="text-[15px] font-bold leading-none text-slate-900 uppercase tracking-tight">
                     {selectedSocio.apellido}
                   </h2>
-                  <h3 className="text-base font-medium leading-tight truncate text-slate-600">
+                  <h3 className="text-[13px] font-semibold leading-tight text-slate-600 mt-0.5">
                     {selectedSocio.nombre}
                   </h3>
                 </div>
                 
-                <div className="mt-3 space-y-2">
-                  <div>
-                    <div className="text-[8px] text-slate-500 uppercase tracking-wider font-bold">DNI</div>
-                    <div className="font-mono text-lg font-bold tracking-widest text-slate-900">{selectedSocio.dni}</div>
+                <div className="space-y-1 mt-1">
+                  <div className="flex flex-col leading-none">
+                    <span className="text-[7px] text-slate-400 uppercase font-bold tracking-widest">DNI</span>
+                    <span className="font-mono text-[14px] font-bold text-slate-900">{selectedSocio.dni}</span>
                   </div>
-                  <div>
-                    <div className="text-[8px] text-slate-500 uppercase tracking-wider font-bold">Vencimiento</div>
-                    <div className="font-mono text-lg text-emerald-600 font-bold">
+                  <div className="flex flex-col leading-none">
+                    <span className="text-[7px] text-slate-400 uppercase font-bold tracking-widest">Vencimiento</span>
+                    <span className="font-mono text-[14px] font-bold text-emerald-600">
                       {selectedSocio.proximaRevisionMedica 
                         ? new Date(selectedSocio.proximaRevisionMedica).toLocaleDateString()
                         : '---'}
-                    </div>
+                    </span>
                   </div>
                 </div>
               </div>
 
-              {/* QR Code */}
-              <div ref={qrRef} className="bg-white p-1 rounded shadow-lg shrink-0">
+              {/* QR Code Area */}
+              <div ref={qrRef} className="bg-white p-1 rounded border border-slate-100 shrink-0">
                 <QRCode 
                   value={selectedSocio.dni}
-                  size={56}
+                  size={52}
                   style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                   viewBox={`0 0 256 256`}
                 />
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="relative z-10 bg-slate-100 p-2 text-center border-t border-slate-200 flex items-center justify-center">
-              <p className="text-[6px] text-slate-500 uppercase tracking-[0.15em] font-bold leading-none">
+            {/* Footer - Fixed at bottom */}
+            <div className="absolute bottom-0 left-0 w-full h-[8mm] bg-slate-50 border-t border-slate-200 flex items-center justify-center z-20">
+              <p className="text-[7px] text-slate-500 uppercase tracking-widest font-bold leading-normal">
                 Unión Vecinal Barrio 25 de Mayo
               </p>
             </div>
+
           </div>
         </div>
       )}

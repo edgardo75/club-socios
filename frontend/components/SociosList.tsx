@@ -79,12 +79,95 @@ export default function SociosList() {
         <div className="text-center py-10 text-red-400">Error al cargar los socios</div>
       ) : (
         <div className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden shadow-xl">
-          <table className="w-full text-left">
+
+          {/* Mobile View (Cards) */}
+          <div className="grid grid-cols-1 gap-4 md:hidden">
+            {socios.map((socio) => (
+              <div key={socio.id || socio.dni} className={`bg-slate-900 rounded-xl p-4 border border-slate-800 shadow-sm ${socio.deletedAt ? 'bg-red-900/10' : ''}`}>
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 font-bold text-lg">
+                      {socio.nombre[0]}{socio.apellido[0]}
+                    </div>
+                    <div>
+                      <div className="font-bold text-white text-lg">
+                        {socio.nombre} {socio.apellido}
+                      </div>
+                      <div className="text-slate-500 text-sm">{socio.dni}</div>
+                    </div>
+                  </div>
+                  <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase ${
+                    socio.estado === 'activo' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                    socio.estado === 'suspendido' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                    'bg-slate-700 text-slate-300'
+                  }`}>
+                    {socio.estado}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-4 text-sm text-slate-400">
+                  <div>
+                    <span className="block text-slate-600 text-xs uppercase mb-1">Tipo</span>
+                    <span className={`font-medium ${
+                      socio.tipo === 'vitalicio' ? 'text-purple-400' :
+                      socio.tipo === 'adherente' ? 'text-blue-400' :
+                      'text-slate-300'
+                    }`}>
+                      {(socio.tipo || 'activo').toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="block text-slate-600 text-xs uppercase mb-1">Ingreso</span>
+                    {new Date(socio.fechaIngreso).toLocaleDateString()}
+                  </div>
+                  <div className="col-span-2">
+                     <span className="block text-slate-600 text-xs uppercase mb-1">Email</span>
+                     {socio.email || 'Sin email'}
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-3 border-t border-slate-800/50">
+                  {socio.deletedAt ? (
+                    <button
+                      onClick={() => handleRestore(socio.dni)}
+                      className="flex-1 py-2 text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-lg transition-colors font-medium text-sm"
+                    >
+                      Restaurar
+                    </button>
+                  ) : (
+                    <>
+                      <Link 
+                        href={`/socios/${socio.dni}/editar`}
+                        className="flex-1 py-2 text-center text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 rounded-lg transition-colors font-medium text-sm"
+                      >
+                        Editar
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(socio.dni)}
+                        className="flex-1 py-2 text-red-400 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition-colors font-medium text-sm"
+                      >
+                        Eliminar
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+            {socios.length === 0 && (
+              <div className="text-center py-10 text-slate-500">
+                {showDeleted ? 'No hay socios eliminados' : 'No se encontraron socios'}
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Table View */}
+          <table className="w-full text-left hidden md:table">
             <thead className="bg-slate-950/50 text-slate-400 uppercase text-xs font-medium tracking-wider">
               <tr>
                 <th className="px-6 py-4">Socio</th>
                 <th className="px-6 py-4">DNI</th>
                 <th className="px-6 py-4">Estado</th>
+                <th className="px-6 py-4">Tipo</th>
                 <th className="px-6 py-4">Ingreso</th>
                 <th className="px-6 py-4 text-right">Acciones</th>
               </tr>
@@ -114,6 +197,15 @@ export default function SociosList() {
                       'bg-slate-700 text-slate-300'
                     }`}>
                       {socio.estado.toUpperCase()}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${
+                      socio.tipo === 'vitalicio' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' :
+                      socio.tipo === 'adherente' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
+                      'bg-slate-700/50 text-slate-300 border-slate-600/50'
+                    }`}>
+                      {(socio.tipo || 'activo').toUpperCase()}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-slate-400">
